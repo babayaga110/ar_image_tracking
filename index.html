@@ -4,22 +4,81 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AR Business Card</title>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
-</head>
-<body style="margin: 0; overflow: hidden;">
-  <a-scene embedded arjs>
-    <!-- Use the AR.js marker pattern (your business card's logo) -->
-    <a-marker preset="custom" type="nft" url="/target.iset">
-      <!-- Use model-viewer to display the 3D model when the marker is detected -->
-      <a-entity id="modelViewerContainer">
-        <model-viewer src="/anime_woman_model.glb" alt="Business Card 3D Model" 
-          ar ios-src="/Anime_woman_model.usdz" 
-          auto-rotate camera-controls ar></model-viewer>
-      </a-entity>
-    </a-marker>
 
-    <!-- Camera for AR scene -->
+  <!-- import aframe and then ar.js with image tracking features -->
+  <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1.2.0/dist/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+
+  <!-- style for the loader -->
+  <style>
+    .arjs-loader {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .arjs-loader div {
+      text-align: center;
+      font-size: 1.25em;
+      color: white;
+    }
+  </style>
+</head>
+<body style="margin: 0px; overflow: hidden;">
+  <!-- minimal loader shown until image descriptors are loaded. Loading may take a while according to the device computational power -->
+  <div class="arjs-loader">
+    <div>Loading, please wait...</div>
+  </div>
+
+  <!-- a-frame scene -->
+  <a-scene
+    vr-mode-ui="enabled: false;"
+    renderer="logarithmicDepthBuffer: true; antialias: true; precision: highp;"
+    embedded
+    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix;"
+  >
+    <!-- a-nft is the anchor that defines an Image Tracking entity -->
+    <!-- on 'url' use the path to the Image Descriptors created before. -->
+    <!-- the path should end with the name without the extension e.g. if file is 'pinball.fset' the path should end with 'pinball' -->
+    <a-nft
+      type="nft"
+      url="/target"
+      smooth="true"
+      smoothCount="10"
+      smoothTolerance=".01"
+      smoothThreshold="5"
+    >
+      <!-- as a child of the a-nft entity, you can define the content to show. here's a GLTF model entity -->
+      <a-entity
+        gltf-model="anime_woman_model.glb"
+        scale="5 5 5"
+        position="0 0 0" 
+        animation="property: rotation; to: 0 360 0; dur: 3000; loop: true"
+      >
+      </a-entity>
+    </a-nft>
+
+    <!-- static camera that moves according to the device movements -->
     <a-entity camera></a-entity>
   </a-scene>
+
+  <script>
+    // Wait for AR.js to load and detect the marker
+    var scene = document.querySelector('a-scene');
+    var loader = document.querySelector('.arjs-loader');
+
+    // Hide loader once AR.js has started
+    scene.addEventListener('loaded', function () {
+      loader.style.display = 'none';
+    });
+  </script>
+
 </body>
 </html>
